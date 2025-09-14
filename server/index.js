@@ -39,8 +39,11 @@ app.use("/api/signup", userRoute);
 // route to login
 app.use("/api/login", userRoute);
 // route to save form data
-app.use("/api",authMiddleware, userRoute);
-
+// app.use("/api",authMiddleware, userRoute);
+app.use("/api", userRoute);
+// get applicant data
+// route to save form data
+// app.use("/api",userRoute);
 
 
 const PORT = process.env.PORT || 5000;
