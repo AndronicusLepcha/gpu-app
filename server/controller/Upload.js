@@ -1,15 +1,12 @@
 import FormModel from "../models/upload.js";
 import s3 from "../config/aws.js";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
+import UploadedCF from "../models/certificatesUploaded.js";
 
 const uploadFormData = async (req, res) => {
   console.log("Text fields:", req.body);
-  // Files
-  // console.log("Files:", req.files);
-  // res.status(200).json({ message: "Success" });
-
   const files = req.files; // array of files
-  const { name, contact } = req.body;
+  const { name, contact, certificateType } = req.body;
   if (!files || files.length === 0) {
     return res.status(400).json({ error: "No files uploaded" });
   }
@@ -47,6 +44,7 @@ const uploadFormData = async (req, res) => {
       name,
       contact,
       documentUrls,
+      certificateType,
     });
 
     res.status(200).json({ message: "Success", data: doc });
@@ -56,4 +54,51 @@ const uploadFormData = async (req, res) => {
   }
 };
 
-export { uploadFormData };
+const getAllRequestApplicantData = async (req, res) => {
+  // res.status(200).json({ message: "Success" });
+  try {
+    if (req) {
+      console.log("Request body", req);
+    }
+    const data = await FormModel.find();
+    console.log("All forms:", data);
+    res.status(200).json({ message: "Success", data: data });
+  } catch (err) {
+    console.error("Error fetching applicants data:", err);
+  }
+};
+
+// to upload cf by the admin
+const uploadCF = async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: "No file uploaded" });
+  const file = req.file;
+  try {
+    // S3 upload
+    const key = `requestCFs/${Date.now()}-${file.originalname}`;
+    const params = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: key,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+    };
+    await s3.send(new PutObjectCommand(params));
+    const fileUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
+    // save the url to db
+    const savedCF = await UploadedCF.create({
+      userId: req.body.userId, // or however you identify the user
+      certificateType: req.body.certificateType,
+      name: req.body.name,
+      contact: req.body.contact,
+      documentUrls: fileUrl,
+    });
+
+    res
+      .status(200)
+      .json({ message: "File Upload Successfully", data: savedCF });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Upload failed" });
+  }
+};
+
+export { uploadFormData, getAllRequestApplicantData, uploadCF };

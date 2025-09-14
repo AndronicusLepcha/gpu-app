@@ -3,8 +3,6 @@ import { useState } from "react";
 import { Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Loading from "@/components/loading";
-import { resolve } from "path";
-import { rejects } from "assert";
 
 export default function DocumentUploadPage() {
   const [name, setName] = useState("");
@@ -47,6 +45,7 @@ export default function DocumentUploadPage() {
     const formData = new FormData();
     formData.append("name", name);
     formData.append("contact", contact);
+    formData.append("certificateType", "employeementCF");
     formData.append("aadhar", files["aadhar"] as File);
     formData.append("dobProof", files["dob"] as File);
 
@@ -67,11 +66,6 @@ export default function DocumentUploadPage() {
       });
 
       const data = await output.json();
-      const test = await new Promise((resolve,rejects)=>{
-        setTimeout(()=>{
-          resolve("")
-        },5000)
-      })
 
       if (output.ok) {
         setIsLoading(false)
