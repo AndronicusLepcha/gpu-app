@@ -41,16 +41,16 @@ export default function RequestsPage() {
   }, []);
 
   console.log("data from the api", requests);
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>,rowData:typeof dummyRequests[0]) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    console.log(rowData)
     const formData = new FormData();
-    formData.append("userId", "98734927497");
-    formData.append("certificateType", "employeementCF");
-    formData.append("name", "Test User");
-    formData.append("contact", "98734927497");
+    formData.append("userId",rowData.userId);
+    formData.append("certificateType", rowData.certificateType);
+    formData.append("name", rowData.name);
+    formData.append("contact", rowData.contact);
     formData.append("file", file);
-    console.log("file is ", file);
 
     try {
       const token = localStorage.getItem("token");
@@ -110,7 +110,7 @@ export default function RequestsPage() {
                         <span>Upload</span>
                         <input
                           type="file"
-                          onChange={handleFileChange}
+                          onChange={(e)=>handleFileChange(e,req)}
                           className="hidden"
                         />
                       </label>

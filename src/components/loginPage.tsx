@@ -54,6 +54,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
       if (res.ok) {
         localStorage.setItem("token", data.token); // save token in local storage.
+        localStorage.setItem("user", JSON.stringify(data.user));
         console.log("✅ Login successful!");
         router.push("/apply");
       } else {

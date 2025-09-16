@@ -2,7 +2,7 @@
 import express from "express"
 const userRoute = express.Router()
 import {createUser,getUsers,signup,login} from "../controller/User.js"
-import {uploadFormData,getAllRequestApplicantData,uploadCF} from "../controller/Upload.js"
+import {uploadFormData,getAllRequestApplicantData,uploadCF,getCF} from "../controller/Upload.js"
 import multer from "multer"
 
 
@@ -27,6 +27,10 @@ userRoute.post("/saveFormData",upload.fields([
 userRoute.get("/getApplicantData",getAllRequestApplicantData)
 // upload CF 
 userRoute.post("/uploadCF",upload.single("file"),uploadCF)
+// get CF
+userRoute.post("/getCF",getCF)
+
+
 
 
 

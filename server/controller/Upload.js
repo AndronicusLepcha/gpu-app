@@ -6,7 +6,7 @@ import UploadedCF from "../models/certificatesUploaded.js";
 const uploadFormData = async (req, res) => {
   console.log("Text fields:", req.body);
   const files = req.files; // array of files
-  const { name, contact, certificateType } = req.body;
+  const { name, contact, certificateType, userId } = req.body;
   if (!files || files.length === 0) {
     return res.status(400).json({ error: "No files uploaded" });
   }
@@ -41,6 +41,7 @@ const uploadFormData = async (req, res) => {
 
     // Save to MongoDB
     const doc = await FormModel.create({
+      userId,
       name,
       contact,
       documentUrls,
@@ -100,5 +101,19 @@ const uploadCF = async (req, res) => {
     res.status(500).json({ error: "Upload failed" });
   }
 };
+// fetch certificates for the logged in user
+const getCF = async (req, res) => {
+   const { userID } = req.body;
+   console.log("userID is",userID)
+    if (!userID) {
+      return res.status(400).json({ message: "Missing userID" });
+    }
+  try {
+    const data = await UploadedCF.find({ userId: userID });
+    res.status(200).json({ message: "Success", data: data });
+  } catch (err) {
+    console.error("Error fetching applicants data:", err);
+  }
+};
 
-export { uploadFormData, getAllRequestApplicantData, uploadCF };
+export { uploadFormData, getAllRequestApplicantData, uploadCF, getCF };
