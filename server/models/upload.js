@@ -9,7 +9,8 @@ const FormSchema = new mongoose.Schema({
       key: { type: String, required: true },
       url: { type: String, required: true }
     }
-  ]
+  ],
+  userId: String,
 });
 
 const FormModel = mongoose.models.applicantdata || mongoose.model("applicantdata", FormSchema);

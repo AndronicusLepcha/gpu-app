@@ -5,12 +5,15 @@ import { useRouter } from "next/navigation";
 import Loading from "@/components/loading";
 
 export default function DocumentUploadPage() {
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  console.log(user);
+
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
   const [files, setFiles] = useState<{ [key: string]: File | null }>({});
   const [fileNames, setFileNames] = useState<{ [key: string]: string }>({});
   const [message, setMessage] = useState("");
-  const [isloading,setIsLoading] = useState(false)
+  const [isloading, setIsLoading] = useState(false);
 
   const router = useRouter();
 
@@ -19,7 +22,6 @@ export default function DocumentUploadPage() {
     key: string
   ) => {
     if (!e.target.files) return;
-
     const selected = e.target.files[0];
     const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
     // validation
@@ -33,7 +35,7 @@ export default function DocumentUploadPage() {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    setIsLoading(true)
+    setIsLoading(true);
     console.log("handle submit clicked");
     e.preventDefault();
 
@@ -43,6 +45,7 @@ export default function DocumentUploadPage() {
     }
 
     const formData = new FormData();
+    formData.append("userId", user._id);
     formData.append("name", name);
     formData.append("contact", contact);
     formData.append("certificateType", "employeementCF");
@@ -68,14 +71,14 @@ export default function DocumentUploadPage() {
       const data = await output.json();
 
       if (output.ok) {
-        setIsLoading(false)
+        setIsLoading(false);
         setMessage("✅ Documents uploaded successfully!");
         router.push("success");
       } else {
         setMessage(`❌ ${data.message}`);
       }
     } catch (err) {
-      setIsLoading(false)
+      setIsLoading(false);
       console.error(err);
       setMessage("⚠️ Something went wrong");
     }
@@ -83,7 +86,7 @@ export default function DocumentUploadPage() {
 
   return (
     <div className="flex items-center justify-center p-4">
-       {isloading && <Loading  isOpen={isloading}/> }
+      {isloading && <Loading isOpen={isloading} />}
       <form
         onSubmit={handleSubmit}
         className="bg-white shadow-md rounded-lg p-6 w-full max-w-md space-y-4"
