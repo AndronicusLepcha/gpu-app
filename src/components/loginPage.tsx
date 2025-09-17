@@ -30,21 +30,12 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // if (formData.password !== formData.confirmPassword) {
-    //   alert("❌ Passwords do not match!");
-    //   return;
-    // }
-    console.log("✅ Submitted:", formData);
-    // TODO: send data to backend
     onClose();
 
-    // api call to login
     try {
       const phone = formData.phone;
       const password = formData.password;
-
       const res = await fetch("http://localhost:5000/api/login/user", {
-        // 👈 backend endpoint
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone, password }),
@@ -56,7 +47,11 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
         localStorage.setItem("token", data.token); // save token in local storage.
         localStorage.setItem("user", JSON.stringify(data.user));
         console.log("✅ Login successful!");
-        router.push("/apply");
+        if (data.user.isAdmin) {
+          router.push("/admin");
+        } else {
+          router.push("/apply");
+        }
       } else {
         console.log(`❌ ${data.message}`);
       }

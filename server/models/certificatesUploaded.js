@@ -8,7 +8,6 @@ const CFUploadSchema = new mongoose.Schema({
   documentUrls: { type: String, required: true },
 });
 
-const UploadedCF =
-  mongoose.models.certificates || mongoose.model("certificates", CFUploadSchema);
+const UploadedCF = mongoose.models.certificates || mongoose.model("certificates", CFUploadSchema);
 
 export default UploadedCF;

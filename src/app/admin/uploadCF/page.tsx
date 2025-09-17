@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Upload } from "lucide-react";
+import LoadingModal from "@/components/loading";
 
 // Dummy data for now – replace with API call later
 const dummyRequests = [
@@ -32,6 +33,7 @@ const dummyRequests = [
 
 export default function RequestsPage() {
   const [requests, setRequests] = useState(dummyRequests);
+  const [isLoading, setIsLoading] = useState(false);
 
   //   Later you can fetch from your API
   useEffect(() => {
@@ -41,12 +43,16 @@ export default function RequestsPage() {
   }, []);
 
   console.log("data from the api", requests);
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>,rowData:typeof dummyRequests[0]) => {
+  const handleFileChange = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    rowData: (typeof dummyRequests)[0]
+  ) => {
+    setIsLoading(true)
     const file = e.target.files?.[0];
     if (!file) return;
-    console.log(rowData)
+    console.log(rowData);
     const formData = new FormData();
-    formData.append("userId",rowData.userId);
+    formData.append("userId", rowData.userId);
     formData.append("certificateType", rowData.certificateType);
     formData.append("name", rowData.name);
     formData.append("contact", rowData.contact);
@@ -67,10 +73,13 @@ export default function RequestsPage() {
     } catch (err) {
       console.log("error occured while uploading the CF!.", err);
     }
+    // add the logic here to change the request list.
+    setIsLoading(false)
   };
 
   return (
     <>
+      {isLoading && <LoadingModal isOpen={isLoading} />}
       {requests && requests.length > 0 ? (
         <div className="min-h-screen bg-gray-50 p-6">
           <h1 className="text-2xl font-bold text-gray-800 mb-6">
@@ -110,7 +119,7 @@ export default function RequestsPage() {
                         <span>Upload</span>
                         <input
                           type="file"
-                          onChange={(e)=>handleFileChange(e,req)}
+                          onChange={(e) => handleFileChange(e, req)}
                           className="hidden"
                         />
                       </label>
