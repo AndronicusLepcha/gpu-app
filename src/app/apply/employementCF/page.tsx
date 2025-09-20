@@ -60,7 +60,7 @@ export default function DocumentUploadPage() {
       const token = localStorage.getItem("token");
       console.log("token is ", token);
 
-      const output = await fetch("http://localhost:5000/api/saveFormData", {
+      const output = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/saveFormData`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

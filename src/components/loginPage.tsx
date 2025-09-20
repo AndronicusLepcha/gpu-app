@@ -35,7 +35,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
     try {
       const phone = formData.phone;
       const password = formData.password;
-      const res = await fetch("http://localhost:5000/api/login/user", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/login/user`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone, password }),

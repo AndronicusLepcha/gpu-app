@@ -3,9 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import isTokenPrsent from "@/utils/isTokenPresent";
 
-//
 // 1. Define types
-//
 type Request = {
   id: string;
   name: string;
@@ -29,16 +27,11 @@ type ApiResponse = {
 
 type User = { _id: string };
 
-//
-// 2. Component
-//
 export default function CertificatedataumentsReady() {
   const [requests, setRequests] = useState<Request[]>([]);
   const router = useRouter();
 
-  //
-  // 3. API fetch
-  //
+  
   const getCertificate = async (): Promise<Request[]> => {
     const token = localStorage.getItem("token");
     const userObjStr = localStorage.getItem("user");
@@ -50,7 +43,7 @@ export default function CertificatedataumentsReady() {
     const userObj: User = JSON.parse(userObjStr);
     const customBody = { userID: userObj._id };
 
-    const output = await fetch("http://localhost:5000/api/getCF", {
+    const output = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/getCF`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

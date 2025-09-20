@@ -9,23 +9,12 @@ const dummyRequests = [
     id: "1",
     name: "Edup",
     contact: "6294910181",
+    userId:"",
     certificateType: "Income Certificate",
     documentUrls: [
       {
         key: "documents/sample1.pdf",
         url: "https://gpu-data-prod.s3.ap-south-1.amazonaws.com/documents/sample1.pdf",
-      },
-    ],
-  },
-  {
-    id: "2",
-    name: "John Doe",
-    contact: "9876543210",
-    certificateType: "Unmarried Certificate",
-    documentUrls: [
-      {
-        key: "documents/sample2.pdf",
-        url: "https://gpu-data-prod.s3.ap-south-1.amazonaws.com/documents/sample2.pdf",
       },
     ],
   },
@@ -37,7 +26,13 @@ export default function RequestsPage() {
 
   //   Later you can fetch from your API
   useEffect(() => {
-    fetch("http://localhost:5000/api/getApplicantData")
+    const token = localStorage.getItem("token");
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/getApplicantData`,{
+      method:"GET",
+      headers:{
+        Authorization: `Bearer ${token}`,
+      }
+    })
       .then((res) => res.json())
       .then((res) => setRequests(res.data));
   }, []);
@@ -61,7 +56,7 @@ export default function RequestsPage() {
     try {
       const token = localStorage.getItem("token");
       console.log("token is ", token);
-      const result = await fetch("http://localhost:5000/api/uploadCF", {
+      const result = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/uploadCF`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
