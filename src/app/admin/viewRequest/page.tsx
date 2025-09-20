@@ -1,6 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Download } from "lucide-react";
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
+import LoadingModal from "@/components/loading";
 
 // Dummy data for now – replace with API call later
 const dummyRequests = [
@@ -36,20 +39,21 @@ export default function RequestsPage() {
   //   Later you can fetch from your API
   useEffect(() => {
     const token = localStorage.getItem("token");
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/getApplicantData`,{
-      method:"GET",
-      headers:{
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/getApplicantData`, {
+      method: "GET",
+      headers: {
         Authorization: `Bearer ${token}`,
-      }
+      },
     })
       .then((res) => res.json())
       .then((res) => setRequests(res.data));
   }, []);
 
-  console.log("data from the api", requests);
+  const [loading, setLoading] = useState(false);
 
   return (
     <>
+     {loading && <LoadingModal isOpen={loading} isDownloading={loading} />}
       {requests && requests.length > 0 ? (
         <div className="min-h-screen bg-gray-50 p-6">
           <h1 className="text-2xl font-bold text-gray-800 mb-6">
@@ -75,7 +79,7 @@ export default function RequestsPage() {
                 </tr>
               </thead>
               <tbody>
-                {requests.map((req,idx) => (
+                {requests.map((req, idx) => (
                   <tr
                     key={idx}
                     className="border-b hover:bg-gray-50 transition"
@@ -83,7 +87,7 @@ export default function RequestsPage() {
                     <td className="p-3 text-gray-700">{req.name}</td>
                     <td className="p-3 text-gray-700">{req.contact}</td>
                     <td className="p-3 text-gray-700">{req.certificateType}</td>
-                    <td className="p-3 text-gray-700">
+                    {/* <td className="p-3 text-gray-700">
                       {req.documentUrls.map((doc, idx) => (
                         <a
                           key={idx}
@@ -95,6 +99,50 @@ export default function RequestsPage() {
                           <Download className="w-5 h-5" />
                         </a>
                       ))}
+                    </td> */}
+                    <td className="p-3 text-gray-700">
+                      {req.documentUrls.length > 0 && (
+                        <button
+                          onClick={async () => {
+                            setLoading(true);
+
+                            const zip = new JSZip();
+
+                            for (let i = 0; i < req.documentUrls.length; i++) {
+                              const doc = req.documentUrls[i];
+
+                              // ✅ Use proxy instead of direct S3 link
+                              const proxyUrl = `${process.env.NEXT_PUBLIC_API_URL}/proxy?url=${encodeURIComponent(
+                                doc.url
+                              )}`;
+                              const response = await fetch(proxyUrl);
+                              const blob = await response.blob();
+
+                              const fileName = doc.key || `file-${i + 1}.pdf`;
+                              zip.file(fileName, blob);
+                            }
+
+                            const content = await zip.generateAsync({
+                              type: "blob",
+                            });
+                            saveAs(content, `${req.name || "documents"}.zip`);
+
+                            setLoading(false);
+                          }}
+                          className="inline-flex items-center text-blue-600 hover:text-blue-800"
+                        >
+                          {/* {loading ? (
+                            <span className="text-sm text-gray-500">
+                              Preparing...
+                            </span>
+                          ) : ( */}
+                            {/* <> */}
+                              <Download className="w-5 h-5" />
+                              <span className="ml-1">Download All</span>
+                            {/* </> */}
+                          {/* )} */}
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -104,7 +152,7 @@ export default function RequestsPage() {
         </div>
       ) : (
         <div className="min-h-screen flex items-center justify-center text-gray-500 text-lg">
-           No application. Enjoy your day! 🙂
+          No application. Enjoy your day! 🙂
         </div>
       )}
     </>

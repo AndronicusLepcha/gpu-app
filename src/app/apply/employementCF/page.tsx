@@ -48,7 +48,7 @@ export default function DocumentUploadPage() {
     formData.append("userId", user._id);
     formData.append("name", name);
     formData.append("contact", contact);
-    formData.append("certificateType", "employeementCF");
+    formData.append("certificateType", "employment certificate");
     formData.append("aadhar", files["aadhar"] as File);
     formData.append("dobProof", files["dob"] as File);
 
