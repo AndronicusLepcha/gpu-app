@@ -40,7 +40,7 @@ app.use("/api/signup", userRoute);
 app.use("/api/login", userRoute);
 // route to save form data
 // app.use("/api",authMiddleware, userRoute);
-app.use("/api", userRoute);
+app.use("/api", authMiddleware, userRoute);
 // get applicant data
 // route to save form data
 // app.use("/api",userRoute);

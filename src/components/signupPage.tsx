@@ -14,6 +14,7 @@ interface FormData {
   phone: string;
   password: string;
   confirmPassword: string;
+  isAdmin: boolean,
 }
 
 export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
@@ -23,6 +24,7 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
     phone: "",
     password: "",
     confirmPassword: "",
+    isAdmin:false
   });
   const router = useRouter();
 
@@ -45,7 +47,7 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
     onClose();
     // api call to login 
     try {
-      const res = await fetch("http://localhost:5000/api/signup/gpu", { // 👈 backend endpoint
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/signup/gpu`, { // 👈 backend endpoint
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

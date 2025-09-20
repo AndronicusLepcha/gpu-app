@@ -17,24 +17,16 @@ const createUser = async (req, res) => {
   }
 };
 
-// {
-//     "name": "Robot",
-//     "email": "andronicus.lepcha1@keysight.com",
-//     "phone": "6294910181",
-//     "password": "test",
-//     "confirmPassword": "test"
-// }
-
 // signup for gpu users.
 export const signup = async (req, res) => {
   try {
-    const { name, email, phone, password } = req.body;
+    const { name, email, phone, password,isAdmin } = req.body;
 
     // hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // save user
-    const user = new GPUuser({ name, email, phone, password: hashedPassword });
+    const user = new GPUuser({ name, email, phone, password: hashedPassword,isAdmin});
     await user.save();
 
     res.status(201).json({ message: "User created successfully!" });

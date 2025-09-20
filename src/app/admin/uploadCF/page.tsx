@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Upload } from "lucide-react";
+import LoadingModal from "@/components/loading";
 
 // Dummy data for now – replace with API call later
 const dummyRequests = [
@@ -8,6 +9,7 @@ const dummyRequests = [
     id: "1",
     name: "Edup",
     contact: "6294910181",
+    userId:"",
     certificateType: "Income Certificate",
     documentUrls: [
       {
@@ -16,37 +18,36 @@ const dummyRequests = [
       },
     ],
   },
-  {
-    id: "2",
-    name: "John Doe",
-    contact: "9876543210",
-    certificateType: "Unmarried Certificate",
-    documentUrls: [
-      {
-        key: "documents/sample2.pdf",
-        url: "https://gpu-data-prod.s3.ap-south-1.amazonaws.com/documents/sample2.pdf",
-      },
-    ],
-  },
 ];
 
 export default function RequestsPage() {
   const [requests, setRequests] = useState(dummyRequests);
+  const [isLoading, setIsLoading] = useState(false);
 
   //   Later you can fetch from your API
   useEffect(() => {
-    fetch("http://localhost:5000/api/getApplicantData")
+    const token = localStorage.getItem("token");
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/getApplicantData`,{
+      method:"GET",
+      headers:{
+        Authorization: `Bearer ${token}`,
+      }
+    })
       .then((res) => res.json())
       .then((res) => setRequests(res.data));
   }, []);
 
   console.log("data from the api", requests);
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>,rowData:typeof dummyRequests[0]) => {
+  const handleFileChange = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    rowData: (typeof dummyRequests)[0]
+  ) => {
+    setIsLoading(true)
     const file = e.target.files?.[0];
     if (!file) return;
-    console.log(rowData)
+    console.log(rowData);
     const formData = new FormData();
-    formData.append("userId",rowData.userId);
+    formData.append("userId", rowData.userId);
     formData.append("certificateType", rowData.certificateType);
     formData.append("name", rowData.name);
     formData.append("contact", rowData.contact);
@@ -55,7 +56,7 @@ export default function RequestsPage() {
     try {
       const token = localStorage.getItem("token");
       console.log("token is ", token);
-      const result = await fetch("http://localhost:5000/api/uploadCF", {
+      const result = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/uploadCF`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -67,10 +68,13 @@ export default function RequestsPage() {
     } catch (err) {
       console.log("error occured while uploading the CF!.", err);
     }
+    // add the logic here to change the request list.
+    setIsLoading(false)
   };
 
   return (
     <>
+      {isLoading && <LoadingModal isOpen={isLoading} />}
       {requests && requests.length > 0 ? (
         <div className="min-h-screen bg-gray-50 p-6">
           <h1 className="text-2xl font-bold text-gray-800 mb-6">
@@ -110,7 +114,7 @@ export default function RequestsPage() {
                         <span>Upload</span>
                         <input
                           type="file"
-                          onChange={(e)=>handleFileChange(e,req)}
+                          onChange={(e) => handleFileChange(e, req)}
                           className="hidden"
                         />
                       </label>

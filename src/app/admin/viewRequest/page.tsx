@@ -35,7 +35,13 @@ export default function RequestsPage() {
 
   //   Later you can fetch from your API
   useEffect(() => {
-    fetch("http://localhost:5000/api/getApplicantData")
+    const token = localStorage.getItem("token");
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/getApplicantData`,{
+      method:"GET",
+      headers:{
+        Authorization: `Bearer ${token}`,
+      }
+    })
       .then((res) => res.json())
       .then((res) => setRequests(res.data));
   }, []);
